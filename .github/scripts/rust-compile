@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "$USE_CROSS" = true ]; then
+    cargo install --locked cross
+    cmd=cross
+else
+    cmd=cargo
+fi
+
+"$cmd" build --release --locked --target "$1"

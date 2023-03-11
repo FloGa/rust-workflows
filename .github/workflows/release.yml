@@ -1,0 +1,176 @@
+name: Release
+
+on:
+  workflow_call:
+    inputs:
+      targets-config:
+        required: true
+        type: string
+    secrets:
+      CRATES_IO_TOKEN:
+        required: true
+
+jobs:
+  vars:
+    name: Vars
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.set-targets.outputs.tags }}
+      targets: ${{ steps.set-targets.outputs.targets }}
+      targets_per_tags: ${{ steps.set-targets.outputs.targets_per_tags }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - id: set-targets
+        run: ./.__rust-workflows__/.github/scripts/create-release-matrix '${{ inputs.targets-config }}'
+
+  build:
+    name: Build release binaries
+    needs:
+      - vars
+    strategy:
+      matrix:
+        # Despite the linter warning, this is *not* a string, but a JSON array.
+        # noinspection YAMLSchemaValidation
+        include: ${{ fromJSON(needs.vars.outputs.targets) }}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - name: Set environment
+        shell: bash
+        run: cat ./.github/env >>"$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        shell: bash
+        run: ./.__rust-workflows__/.github/scripts/rust-setup '${{ matrix.target }}'
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release
+        shell: bash
+        env:
+          USE_CROSS: ${{ matrix.os == 'ubuntu-latest' }}
+        run: ./.__rust-workflows__/.github/scripts/rust-compile '${{ matrix.target }}'
+
+      - name: Strip and package artifacts
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        id: package
+        shell: bash
+        env:
+          MATRIX_TAG: ${{ github.ref_name }}
+          MATRIX_TARGET: ${{ matrix.target }}
+          MATRIX_OS: ${{ matrix.os }}
+        run: ./.__rust-workflows__/.github/scripts/strip-and-package
+
+      - name: Upload artifacts
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.ref_name }}
+          path: ${{ steps.package.outputs.name_archive }}
+
+  github_release:
+    name: Create GitHub release
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - name: Set environment
+        run: cat ./.github/env >>"$GITHUB_ENV"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.ref_name }}
+          path: .__archives__
+
+      - name: Create checksums
+        run: ./.__rust-workflows__/.github/scripts/create-checksums
+
+      - name: Create release notes
+        run: |
+          ./.__rust-workflows__/.github/scripts/changelog-of-version \
+            "$(git describe --tags --abbrev=0)" \
+            >RELEASE.md
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: .__archives__/${{ env.BINARY_NAME }}-*
+          body_path: RELEASE.md
+
+  cargo_publish:
+    name: Publish package to creates.io
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - name: Set environment
+        shell: bash
+        run: cat ./.github/env >>"$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        shell: bash
+        run: ./.__rust-workflows__/.github/scripts/rust-setup
+
+      - name: Clean rust-workflows helpers
+        shell: bash
+        run: rm -rfv ./.__rust-workflows__
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Publish package
+        run: cargo publish --token '${{ secrets.CRATES_IO_TOKEN }}'

@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Run test suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - name: Set environment
+        shell: bash
+        run: cat ./.github/env >>"$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        shell: bash
+        run: ./.__rust-workflows__/.github/scripts/rust-setup
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test
+        shell: bash
+        run: cargo test
