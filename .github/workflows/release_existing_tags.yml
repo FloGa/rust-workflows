@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: FloGa/rust-workflows
-          ref: develop
+          ref: 0.1.0
           path: .__rust-workflows__
 
       - id: set-targets
@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: FloGa/rust-workflows
-          ref: develop
+          ref: 0.1.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -122,7 +122,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: FloGa/rust-workflows
-          ref: develop
+          ref: 0.1.0
           path: .__rust-workflows__
 
       - name: Set environment
