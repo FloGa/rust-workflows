@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for file in ".__archives__/$BINARY_NAME"-*; do
+    sha256sum "$file" | awk '{print $1}' >"$file.sha256"
+done

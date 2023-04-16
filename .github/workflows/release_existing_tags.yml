@@ -1,0 +1,151 @@
+name: Release existing tags
+
+on:
+  workflow_call:
+    inputs:
+      targets-config:
+        required: true
+        type: string
+
+jobs:
+  vars:
+    name: Vars
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.set-targets.outputs.tags }}
+      targets: ${{ steps.set-targets.outputs.targets }}
+      targets_per_tags: ${{ steps.set-targets.outputs.targets_per_tags }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: 0.1.0
+          path: .__rust-workflows__
+
+      - id: set-targets
+        run: ./.__rust-workflows__/.github/scripts/create-release-matrix '${{ inputs.targets-config }}'
+
+  build:
+    name: Build release binaries
+    needs:
+      - vars
+    strategy:
+      matrix:
+        # Despite the linter warning, this is *not* a string, but a JSON array.
+        # noinspection YAMLSchemaValidation
+        include: ${{ fromJSON(needs.vars.outputs.targets_per_tags) }}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository at tag
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ matrix.tag }}
+
+      - name: Checkout repository HEAD
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: __gh_head__
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: 0.1.0
+          path: .__rust-workflows__
+
+      - name: Set environment
+        shell: bash
+        run: cat ./__gh_head__/.github/env >>"$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        shell: bash
+        run: ./.__rust-workflows__/.github/scripts/rust-setup '${{ matrix.target }}'
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release
+        shell: bash
+        env:
+          USE_CROSS: ${{ matrix.os == 'ubuntu-latest' }}
+        run: ./.__rust-workflows__/.github/scripts/rust-compile '${{ matrix.target }}'
+
+      - name: Strip and package artifacts
+        id: package
+        shell: bash
+        env:
+          MATRIX_TAG: ${{ matrix.tag }}
+          MATRIX_TARGET: ${{ matrix.target }}
+          MATRIX_OS: ${{ matrix.os }}
+        run: ./.__rust-workflows__/.github/scripts/strip-and-package
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.tag }}
+          path: ${{ steps.package.outputs.name_archive }}
+
+  github_release:
+    name: Create GitHub release
+    needs:
+      - vars
+      - build
+    strategy:
+      matrix:
+        tag: ${{ fromJSON(needs.vars.outputs.tags) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository at tag
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ matrix.tag }}
+
+      - name: Checkout repository HEAD
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: __gh_head__
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: 0.1.0
+          path: .__rust-workflows__
+
+      - name: Set environment
+        run: cat ./__gh_head__/.github/env >>"$GITHUB_ENV"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.tag }}
+          path: .__archives__
+
+      - name: Create checksums
+        run: ./.__rust-workflows__/.github/scripts/create-checksums
+
+      - name: Create release notes
+        run: |
+          ./.__rust-workflows__/.github/scripts/changelog-of-version \
+            "$(git describe --tags --abbrev=0)" \
+            >RELEASE.md
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: .__archives__/${{ env.BINARY_NAME }}-*
+          body_path: RELEASE.md
+          tag_name: ${{ matrix.tag }}
