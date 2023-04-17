@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: FloGa/rust-workflows
-          ref: develop
+          ref: 0.1.1
           path: .__rust-workflows__
 
       - name: Set environment
