@@ -35,7 +35,9 @@ jobs:
     name: Build release binaries
     needs:
       - vars
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         # Despite the linter warning, this is *not* a string, but a JSON array.
         # noinspection YAMLSchemaValidation
