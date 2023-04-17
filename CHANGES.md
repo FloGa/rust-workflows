@@ -1,4 +1,4 @@
-# Changes in 0.1.1-RC
+# Changes in 0.1.1
 
 -   Don't fail on compiling existing releases
 

@@ -63,7 +63,7 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   call-release-workflow:
-    uses: FloGa/rust-workflows/.github/workflows/release.yml@0.1.0
+    uses: FloGa/rust-workflows/.github/workflows/release.yml@0.1.1
     with:
       targets-config: ./.github/targets.json
     secrets:
@@ -86,7 +86,7 @@ on:
 
 jobs:
   call-release-exisiting-workflow:
-    uses: FloGa/rust-workflows/.github/workflows/release_existing_tags.yml@0.1.0
+    uses: FloGa/rust-workflows/.github/workflows/release_existing_tags.yml@0.1.1
     with:
       targets-config: ./.github/targets.json
 ```
@@ -112,7 +112,7 @@ on:
 
 jobs:
   call-test-workflow:
-    uses: FloGa/rust-workflows/.github/workflows/test.yml@0.1.0
+    uses: FloGa/rust-workflows/.github/workflows/test.yml@0.1.1
 ```
 
 </details>
