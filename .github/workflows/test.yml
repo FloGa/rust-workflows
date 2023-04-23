@@ -2,6 +2,10 @@ name: Test
 
 on:
   workflow_call:
+    inputs:
+      system-preparation:
+        type: string
+        required: false
 
 jobs:
   test:
@@ -26,6 +30,11 @@ jobs:
       - name: Setup Rust toolchain
         shell: bash
         run: ./.__rust-workflows__/.github/scripts/rust-setup
+
+      - name: Prepare system
+        shell: bash
+        if: ${{ inputs.system-preparation }}
+        run: ${{ inputs.system-preparation }}
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2

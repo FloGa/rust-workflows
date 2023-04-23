@@ -6,6 +6,9 @@ on:
       targets-config:
         required: true
         type: string
+      system-preparation:
+        type: string
+        required: false
 
 jobs:
   vars:
@@ -73,13 +76,18 @@ jobs:
         shell: bash
         run: ./.__rust-workflows__/.github/scripts/rust-setup '${{ matrix.target }}'
 
+      - name: Prepare system
+        shell: bash
+        if: ${{ inputs.system-preparation && (matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu') }}
+        run: ${{ inputs.system-preparation }} ${{ matrix.os }}
+
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
       - name: Build release
         shell: bash
         env:
-          USE_CROSS: ${{ matrix.os == 'ubuntu-latest' }}
+          USE_CROSS: ${{ matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu' }}
         run: ./.__rust-workflows__/.github/scripts/rust-compile '${{ matrix.target }}'
 
       - name: Strip and package artifacts
