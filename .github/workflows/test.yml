@@ -6,6 +6,7 @@ on:
       system-preparation:
         type: string
         required: false
+        description: Optional script for preparing the system
       test-args:
         type: string
         required: false
