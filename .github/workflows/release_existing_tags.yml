@@ -140,6 +140,7 @@ jobs:
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
+        continue-on-error: true
         with:
           name: ${{ matrix.tag }}
           path: .__archives__
