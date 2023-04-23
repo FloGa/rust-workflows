@@ -91,7 +91,7 @@ jobs:
     #   test-args: -- --include-ignored # optional
 
   call-release-workflow:
-    uses: FloGa/rust-workflows/.github/workflows/release.yml@0.1.1
+    uses: FloGa/rust-workflows/.github/workflows/release.yml@0.2.0
     with:
       targets-config: ./.github/targets.json
       # system-preparation: ./.github/prepare-system # optional
@@ -115,7 +115,7 @@ on:
 
 jobs:
   call-release-exisiting-workflow:
-    uses: FloGa/rust-workflows/.github/workflows/release_existing_tags.yml@0.1.1
+    uses: FloGa/rust-workflows/.github/workflows/release_existing_tags.yml@0.2.0
     with:
       targets-config: ./.github/targets.json
       # system-preparation: ./.github/prepare-system # optional
@@ -154,7 +154,7 @@ on:
 
 jobs:
   call-test-workflow:
-    uses: FloGa/rust-workflows/.github/workflows/test.yml@0.1.1
+    uses: FloGa/rust-workflows/.github/workflows/test.yml@0.2.0
     with:
       # system-preparation: ./.github/prepare-system # optional
       test-args: ${{ inputs.test-args }}
