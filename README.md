@@ -43,6 +43,32 @@ Incompatible or unwanted targets can be removed.
 
 <details>
 
+<summary><code>.github/prepare-system</code></summary>
+
+Optional script to set up the system before building. This is required if some dependencies are needed for compiling.
+The first argument will be the operating system name.
+
+```shell
+#!/bin/bash
+
+# EXAMPLE! This will install FUSE libraries before compiling.
+
+case "$1" in
+    macos-latest)
+        brew update
+        brew install macfuse
+        ;;
+    ubuntu-latest | *)
+        sudo apt-get -y update
+        sudo apt-get -y install libfuse3-dev
+        ;;
+esac
+```
+
+</details>
+
+<details>
+
 <summary><code>.github/workflows/release.yml</code></summary>
 
 ```yaml
@@ -66,6 +92,7 @@ jobs:
     uses: FloGa/rust-workflows/.github/workflows/release.yml@0.1.1
     with:
       targets-config: ./.github/targets.json
+      # system-preparation: ./.github/prepare-system # optional
     secrets:
       CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
     needs:
@@ -89,6 +116,7 @@ jobs:
     uses: FloGa/rust-workflows/.github/workflows/release_existing_tags.yml@0.1.1
     with:
       targets-config: ./.github/targets.json
+      # system-preparation: ./.github/prepare-system # optional
 ```
 
 </details>
@@ -113,6 +141,8 @@ on:
 jobs:
   call-test-workflow:
     uses: FloGa/rust-workflows/.github/workflows/test.yml@0.1.1
+    # with:
+    #   system-preparation: ./.github/prepare-system # optional
 ```
 
 </details>
