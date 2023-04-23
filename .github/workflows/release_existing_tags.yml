@@ -79,7 +79,7 @@ jobs:
       - name: Prepare system
         shell: bash
         if: ${{ inputs.system-preparation && (matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu') }}
-        run: ${{ inputs.system-preparation }} ${{ matrix.os }}
+        run: ./__gh_head__/${{ inputs.system-preparation }} ${{ matrix.os }}
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
