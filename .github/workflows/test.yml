@@ -6,6 +6,10 @@ on:
       system-preparation:
         type: string
         required: false
+      test-args:
+        type: string
+        required: false
+        description: Additional arguments for "cargo test"
 
 jobs:
   test:
@@ -41,4 +45,4 @@ jobs:
 
       - name: Test
         shell: bash
-        run: cargo test
+        run: cargo test ${{ inputs.test-args }}
