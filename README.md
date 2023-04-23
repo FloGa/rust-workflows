@@ -87,6 +87,8 @@ on:
 jobs:
   test:
     uses: ./.github/workflows/test.yml
+    # with:
+    #   test-args: -- --include-ignored # optional
 
   call-release-workflow:
     uses: FloGa/rust-workflows/.github/workflows/release.yml@0.1.1
@@ -137,12 +139,25 @@ on:
       - 'feature/**'
 
   workflow_call:
+    inputs:
+      test-args:
+        type: string
+        required: false
+        description: Additional arguments for "cargo test"
+
+  workflow_dispatch:
+    inputs:
+      test-args:
+        type: string
+        required: false
+        description: Additional arguments for "cargo test"
 
 jobs:
   call-test-workflow:
     uses: FloGa/rust-workflows/.github/workflows/test.yml@0.1.1
-    # with:
-    #   system-preparation: ./.github/prepare-system # optional
+    with:
+      # system-preparation: ./.github/prepare-system # optional
+      test-args: ${{ inputs.test-args }}
 ```
 
 </details>
