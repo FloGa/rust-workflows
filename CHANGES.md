@@ -1,5 +1,7 @@
 # Changes since latest release
 
+-   Support a preparation script before building
+
 # Changes in 0.1.1
 
 -   Don't fail on compiling existing releases
