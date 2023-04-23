@@ -2,6 +2,15 @@
 
 -   Support a preparation script before building
 
+-   Do not fail release without artifacts
+
+    If the build failed, there will be no artifacts. Even then, create a
+    release for the tag!
+
+-   Do not create checksums if no artifacts exist
+
+-   Support additional test arguments
+
 # Changes in 0.1.1
 
 -   Don't fail on compiling existing releases
