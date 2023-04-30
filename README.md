@@ -158,6 +158,7 @@ jobs:
     with:
       run-check: true # optional
       run-clippy: true # optional
+      run-fmt: true # optional
       # system-preparation: ./.github/prepare-system # optional
       test-args: ${{ inputs.test-args }}
 ```
