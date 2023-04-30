@@ -3,6 +3,14 @@ name: Test
 on:
   workflow_call:
     inputs:
+      run-check:
+        type: boolean
+        required: false
+        description: Run cargo-check in addition to tests
+      run-clippy:
+        type: boolean
+        required: false
+        description: Run cargo-clippy in addition to tests
       system-preparation:
         type: string
         required: false
@@ -13,6 +21,78 @@ on:
         description: Additional arguments for "cargo test"
 
 jobs:
+  cargo-check:
+    name: Run cargo-check
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run-check }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - name: Set environment
+        shell: bash
+        run: cat ./.github/env >>"$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        shell: bash
+        run: ./.__rust-workflows__/.github/scripts/rust-setup
+
+      - name: Prepare system
+        shell: bash
+        if: ${{ inputs.system-preparation }}
+        run: ${{ inputs.system-preparation }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo check
+        shell: bash
+        run: cargo check
+
+  cargo-clippy:
+    name: Run cargo-clippy
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run-clippy }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v3
+        with:
+          repository: FloGa/rust-workflows
+          ref: develop
+          path: .__rust-workflows__
+
+      - name: Set environment
+        shell: bash
+        run: cat ./.github/env >>"$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        shell: bash
+        run: ./.__rust-workflows__/.github/scripts/rust-setup
+
+      - name: Prepare system
+        shell: bash
+        if: ${{ inputs.system-preparation }}
+        run: ${{ inputs.system-preparation }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo clippy
+        shell: bash
+        run: cargo clippy
+
   test:
     name: Run test suite
     runs-on: ubuntu-latest
