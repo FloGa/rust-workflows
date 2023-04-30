@@ -1,3 +1,9 @@
+# Changes in 0.3.0
+
+-   Optionally support cargo check and clippy
+
+-   Optionally check cargo-fmt in tests
+
 # Changes in 0.2.0
 
 -   Support a preparation script before building
