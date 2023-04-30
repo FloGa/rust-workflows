@@ -1,4 +1,4 @@
-# Changes in 0.3.0-RC
+# Changes in 0.3.0
 
 -   Optionally support cargo check and clippy
 
