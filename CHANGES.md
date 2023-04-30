@@ -1,5 +1,7 @@
 # Changes since latest release
 
+-   Optionally support cargo check and clippy
+
 # Changes in 0.2.0
 
 -   Support a preparation script before building

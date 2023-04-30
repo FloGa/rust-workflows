@@ -156,6 +156,8 @@ jobs:
   call-test-workflow:
     uses: FloGa/rust-workflows/.github/workflows/test.yml@0.2.0
     with:
+      run-check: true # optional
+      run-clippy: true # optional
       # system-preparation: ./.github/prepare-system # optional
       test-args: ${{ inputs.test-args }}
 ```
