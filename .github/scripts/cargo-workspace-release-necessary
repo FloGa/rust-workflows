@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+get_version() {
+    local metadata=$1
+    local package=$2
+
+    local query=""
+    query+='.packages[] | '
+    query+='select(.name == "'"$package"'") | '
+    query+='.version'
+
+    local output
+    read -r output < <(
+        jq --raw-output "$query" <<<"$metadata"
+    )
+
+    echo "$output"
+}
+
+is_tag_on_head() {
+    local sha_tag=$1
+    echo "$sha_tag"
+
+    # "^{}" is necessary to properly resolve the tag object
+    sha_tag=$(git rev-parse "$tag^{}")
+    echo "$sha_tag"
+
+    local sha_head
+    sha_head=$(git rev-parse HEAD)
+    echo "$sha_head"
+
+    [ "$sha_tag" = "$sha_head" ]
+}
+
+print_output() {
+    local result=$1
+    echo "result=$result" | tee -a "$GITHUB_OUTPUT"
+}
+
+# search if main has tag for current workspace
+main() {
+    local package=$1
+
+    local metadata
+    metadata=$(cargo metadata --format-version=1 --no-deps)
+
+    local tag
+    tag=$(get_version "$metadata" "$package")
+
+    if git tag | grep -q '^'"$package-$tag"'$'; then
+        # If there is a tag "$package-$tag", use it!
+        # Otherwise, it must be the main package.
+        tag="$package-$tag"
+    fi
+
+    local result
+    if is_tag_on_head "$tag"; then
+        result=true
+    else
+        result=false
+    fi
+
+    print_output "$result"
+}
+
+main "$@"
