@@ -1,5 +1,25 @@
 # Changes in 0.4.0-RC
 
+-   Add script to detect workspaces
+
+-   Make release workspace aware
+
+-   Add script to decide whether publish is necessary
+
+    Not all workspaces will be needed to be published on every release. The
+    workspaces that have not changed should be skipped in this case.
+
+-   Skip unchanged workspaces
+
+-   Run release on main branches, not on tags
+
+    When using multiple workspaces, tehre can be many tags at once. However,
+    GitHub will not run if there are more than three tags at once. It will
+    however run once for the main branch, so use that to determine which
+    components to publish.
+
+-   Handle case where changelog is not found
+
 # Changes in 0.3.0
 
 -   Optionally support cargo check and clippy
