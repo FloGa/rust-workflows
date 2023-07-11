@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+main() {
+    local metadata
+    metadata=$(cargo metadata --format-version=1 --no-deps)
+
+    local -a packages
+    local -a packages_ordered
+
+    readarray -t packages < <(
+        local query=''
+        query+='.packages | '
+        # Select only workspace members
+        query+='map(select(.source == null)) | '
+        # Select only non-internal members
+        query+='map(select(.version != "0.0.0")) | '
+        query+='.[].name'
+        jq --raw-output "$query" <<<"$metadata"
+    )
+
+    local i
+    local no_circle=1
+    while [ "${packages[*]}" ] && [ "$no_circle" ]; do
+        no_circle=
+        for i in "${!packages[@]}"; do
+            local pkg=${packages[i]}
+
+            local query=""
+            query+='.packages[] | '
+            query+='select(.name == "'"$pkg"'") | '
+            query+='.dependencies | '
+            # Select only workspace members
+            query+='map(select(has("path"))) | '
+            # Select only non-internal members
+            query+='map(select(.req != "^0.0.0")) | '
+            query+='.[].name'
+
+            local -a deps=()
+            readarray -t deps < <(
+                jq --raw-output "$query" <<<"$metadata"
+            )
+
+            if [ ! "${deps[*]}" ]; then
+                packages_ordered+=("$pkg")
+                unset 'packages[i]'
+                no_circle=1
+            else
+                local unsatisfied=
+                local dep
+                for dep in "${deps[@]}"; do
+                    if [[ " ${packages_ordered[*]} " != *" $dep "* ]]; then
+                        unsatisfied=1
+                        break
+                    fi
+                done
+
+                if [ ! "$unsatisfied" ]; then
+                    packages_ordered+=("$pkg")
+                    unset 'packages[i]'
+                    no_circle=1
+                fi
+            fi
+        done
+    done
+
+    if [ ! "$no_circle" ]; then
+        echo >&2 "ERROR: Cannot build dependency graph!"
+        exit 1
+    else
+        local json
+        printf -v json ',"%s"' "${packages_ordered[@]}"
+        echo "workspaces=[${json:1}]" | tee -a "$GITHUB_OUTPUT"
+    fi
+}
+
+main

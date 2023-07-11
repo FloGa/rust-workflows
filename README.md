@@ -77,10 +77,10 @@ name: Release
 on:
   push:
     branches:
+      - main
+      - master
       - 'hotfix/**'
       - 'release/**'
-    tags-ignore:
-      - '_**'
 
   workflow_dispatch:
 

@@ -14,6 +14,10 @@ remove_top() {
     done
 }
 
+if [ ! -r CHANGES.md ]; then
+    echo "No Changelog found"
+fi
+
 sed --silent '/^# .*'"$1"'$/,/^# /p' <CHANGES.md |
     tac |
     remove_top |
