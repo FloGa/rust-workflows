@@ -24,12 +24,12 @@ jobs:
       workspaces: ${{ steps.set-workspaces.outputs.workspaces }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -58,12 +58,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -122,12 +122,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -179,12 +179,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop

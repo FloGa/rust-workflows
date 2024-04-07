@@ -20,12 +20,12 @@ jobs:
       targets_per_tags: ${{ steps.set-targets.outputs.targets_per_tags }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -50,19 +50,19 @@ jobs:
 
     steps:
       - name: Checkout repository at tag
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ matrix.tag }}
 
       - name: Checkout repository HEAD
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: __gh_head__
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -117,19 +117,19 @@ jobs:
 
     steps:
       - name: Checkout repository at tag
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ matrix.tag }}
 
       - name: Checkout repository HEAD
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: __gh_head__
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop

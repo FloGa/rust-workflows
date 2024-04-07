@@ -45,10 +45,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -81,10 +81,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -117,10 +117,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -153,7 +153,7 @@ jobs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
@@ -178,10 +178,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
           ref: develop
