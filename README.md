@@ -160,7 +160,10 @@ jobs:
       run-clippy: true # optional
       run-fmt: true # optional
       # system-preparation: ./.github/prepare-system # optional
-      test-args: ${{ inputs.test-args }}
+      test-args: --workspace ${{ inputs.test-args }}
+      test-on-linux: true # optional, true by default
+      test-on-macos: true # optional
+      test-on-windows: true # optional
 ```
 
 </details>
