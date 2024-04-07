@@ -1,4 +1,4 @@
-# Changes in 0.5.0-RC
+# Changes in 0.5.0
 
 -   Add Python script for test matrix
 
