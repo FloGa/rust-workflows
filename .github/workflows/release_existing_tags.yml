@@ -100,9 +100,9 @@ jobs:
         run: ./.__rust-workflows__/.github/scripts/strip-and-package
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.tag }}
+          name: ${{ matrix.tag }}-${{ steps.package.outputs.name_archive }}
           path: ${{ steps.package.outputs.name_archive }}
 
   github_release:
@@ -139,10 +139,11 @@ jobs:
         run: cat ./__gh_head__/.github/env >>"$GITHUB_ENV"
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: ${{ matrix.tag }}
+          pattern: ${{ matrix.tag }}-*
+          merge-multiple: true
           path: .__archives__
 
       - name: Create checksums
