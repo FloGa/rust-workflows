@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import json
+import os
+
+
+def _encode_json(o):
+    return json.dumps(o, separators=(",", ":"))
+
+
+def main():
+    matrix = []
+
+    if os.environ.get("TEST_ON_LINUX") == "true":
+        matrix.append(
+            {
+                "os": "ubuntu-latest",
+                "name": "Linux",
+            }
+        )
+
+    if os.environ.get("TEST_ON_MACOS") == "true":
+        matrix.append(
+            {
+                "os": "macos-latest",
+                "name": "MacOS",
+            }
+        )
+
+    if os.environ.get("TEST_ON_WINDOWS") == "true":
+        matrix.append(
+            {
+                "os": "windows-latest",
+                "name": "Windows",
+            }
+        )
+
+    matrix = "matrix={}\n".format(_encode_json(matrix))
+
+    print(matrix)
+
+    with open(os.environ.get("GITHUB_OUTPUT"), "a") as output:
+        output.write(matrix)
+
+
+if __name__ == "__main__":
+    main()

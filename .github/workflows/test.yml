@@ -23,6 +23,19 @@ on:
         type: string
         required: false
         description: Additional arguments for "cargo test"
+      test-on-linux:
+        type: boolean
+        required: false
+        default: true
+        description: Run tests on Linux VM
+      test-on-macos:
+        type: boolean
+        required: false
+        description: Run tests on MacOS VM
+      test-on-windows:
+        type: boolean
+        required: false
+        description: Run tests on Windows VM
 
 jobs:
   cargo-check:
@@ -32,13 +45,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -68,13 +81,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -104,13 +117,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -133,19 +146,45 @@ jobs:
         shell: bash
         run: cargo fmt --all -- --check
 
-  test:
-    name: Run test suite
+  matrix:
+    name: Create Matrix
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.create-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout rust-workflows
+        uses: actions/checkout@v4
+        with:
+          repository: FloGa/rust-workflows
+          ref: 0.5.0
+          path: .__rust-workflows__
+
+      - id: create-matrix
+        env:
+          TEST_ON_LINUX: ${{ inputs.test-on-linux }}
+          TEST_ON_MACOS: ${{ inputs.test-on-macos }}
+          TEST_ON_WINDOWS: ${{ inputs.test-on-windows }}
+        run: ./.__rust-workflows__/.github/scripts/create-test-matrix
+
+  test:
+    name: Run test suite for ${{ matrix.name }}
+    needs:
+      - matrix
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -159,7 +198,7 @@ jobs:
       - name: Prepare system
         shell: bash
         if: ${{ inputs.system-preparation }}
-        run: ${{ inputs.system-preparation }}
+        run: ${{ inputs.system-preparation }} ${{ matrix.os }}
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2

@@ -24,15 +24,15 @@ jobs:
       workspaces: ${{ steps.set-workspaces.outputs.workspaces }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - id: set-targets
@@ -58,15 +58,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -108,9 +108,9 @@ jobs:
 
       - name: Upload artifacts
         if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.get-latest-tag-name.outputs.tag_name }}
+          name: ${{ steps.get-latest-tag-name.outputs.tag_name }}-${{ steps.package.outputs.name_archive }}
           path: ${{ steps.package.outputs.name_archive }}
 
   github_release:
@@ -122,15 +122,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
@@ -142,9 +142,10 @@ jobs:
         run: echo "tag_name=$(git describe --tags --abbrev=0)" | tee -a "$GITHUB_OUTPUT"
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ steps.get-latest-tag-name.outputs.tag_name }}
+          pattern: ${{ steps.get-latest-tag-name.outputs.tag_name }}-*
+          merge-multiple: true
           path: .__archives__
 
       - name: Create checksums
@@ -157,7 +158,7 @@ jobs:
             >RELEASE.md
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get-latest-tag-name.outputs.tag_name }}
           files: .__archives__/${{ env.BINARY_NAME }}-*
@@ -179,15 +180,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout rust-workflows
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FloGa/rust-workflows
-          ref: 0.4.0
+          ref: 0.5.0
           path: .__rust-workflows__
 
       - name: Set environment
