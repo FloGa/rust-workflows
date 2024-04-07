@@ -7,30 +7,26 @@ from subprocess import check_output
 
 
 def _encode_json(o):
-    return json.dumps(o, separators=(',', ':'))
+    return json.dumps(o, separators=(",", ":"))
 
 
 def main():
     with open(sys.argv[1]) as targets_file:
         targets = json.load(targets_file)
 
-    tags = check_output('git tag -l'.split(), text=True).strip().splitlines()
+    tags = check_output("git tag -l".split(), text=True).strip().splitlines()
 
-    targets_per_tags = [
-            dict(tag=tag, **target)
-            for target in targets
-            for tag in tags
-    ]
+    targets_per_tags = [dict(tag=tag, **target) for target in targets for tag in tags]
 
-    print('tags={}\n'.format(_encode_json(tags)))
-    print('targets={}\n'.format(_encode_json(targets)))
-    print('targets_per_tags={}\n'.format(_encode_json(targets_per_tags)))
+    print("tags={}\n".format(_encode_json(tags)))
+    print("targets={}\n".format(_encode_json(targets)))
+    print("targets_per_tags={}\n".format(_encode_json(targets_per_tags)))
 
-    with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-        output.write('tags={}\n'.format(_encode_json(tags)))
-        output.write('targets={}\n'.format(_encode_json(targets)))
-        output.write('targets_per_tags={}\n'.format(_encode_json(targets_per_tags)))
+    with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+        output.write("tags={}\n".format(_encode_json(tags)))
+        output.write("targets={}\n".format(_encode_json(targets)))
+        output.write("targets_per_tags={}\n".format(_encode_json(targets_per_tags)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
