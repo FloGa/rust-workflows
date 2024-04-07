@@ -1,4 +1,16 @@
-# Changes since latest release
+# Changes in 0.5.0
+
+-   Add Python script for test matrix
+
+-   Support cross platform testing
+
+-   Optimize Python script
+
+-   Update to latest checkout action
+
+-   Update to latest gh-release action
+
+-   Update to latest artifact actions
 
 # Changes in 0.4.0
 
